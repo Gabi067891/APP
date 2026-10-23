@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LectorApp Studio - Creador & Planificador de Apps para Lectoras</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bookish: {
+                            50: '#faf6f0',
+                            100: '#f4ece1',
+                            200: '#e7d6c3',
+                            300: '#d7bc9f',
+                            400: '#c59f7b',
+                            500: '#b2815a',
+                            600: '#9b6748',
+                            700: '#7d4e3a',
+                            800: '#643f32',
+                            900: '#52342b',
+                        },
+                        academia: {
+                            50: '#f5f5f3',
+                            100: '#e4e4dd',
+                            800: '#2c2c26',
+                            900: '#1a1a16',
+                        },
+                        rosewood: {
+                            100: '#fbeaebe1',
+                            500: '#d17b88',
+                            700: '#8c3a47',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Cinzel:wght@600&family=Space+Mono&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c59f7b;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9b6748;
+        }
+
+        /* Mockup phone Frame animations */
+        .phone-screen {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Custom tab styles */
+        .tab-active {
+            border-bottom: 2px solid #b2815a;
+            color: #7d4e3a;
+            font-weight: 600;
+        }
+
+        /* Card glassmorphism */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(227, 214, 195, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-[#fcf8f3] text-gray-800 font-sans min-h-screen flex flex-col antialiased">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-bookish-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-bookish-600 text-white flex items-center justify-center shadow-md">
+                        <i data-lucide="book-open" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span class="font-serif text-xl font-bold tracking-tight text-bookish-900 block leading-none">LectorApp Studio</span>
+                        <span class="text-xs text-bookish-600 font-medium tracking-wide">Creador & Planificador Bookish</span>
+                    </div>
+                </div>
+
+                <!-- Step Tabs Desktop -->
+                <nav class="hidden md:flex space-x-1 lg:space-x-6">
+                    <button onclick="switchTab('step1')" id="nav-step1" class="tab-btn px-3 py-2 text-sm font-medium text-gray-600 hover:text-bookish-700 transition flex items-center gap-1.5 tab-active">
+                        <i data-lucide="layers" class="w-4 h-4"></i> 1. Tipo de App
+                    </button>
+                    <button onclick="switchTab('step2')" id="nav-step2" class="tab-btn px-3 py-2 text-sm font-medium text-gray-600 hover:text-bookish-700 transition flex items-center gap-1.5">
+                        <i data-lucide="smartphone" class="w-4 h-4"></i> 2. Simulador UI
+                    </button>
+                    <button onclick="switchTab('step3')" id="nav-step3" class="tab-btn px-3 py-2 text-sm font-medium text-gray-600 hover:text-bookish-700 transition flex items-center gap-1.5">
+                        <i data-lucide="cpu" class="w-4 h-4"></i> 3. Tech & No-Code
+                    </button>
+                    <button onclick="switchTab('step4')" id="nav-step4" class="tab-btn px-3 py-2 text-sm font-medium text-gray-600 hover:text-bookish-700 transition flex items-center gap-1.5">
+                        <i data-lucide="calculator" class="w-4 h-4"></i> 4. Finanzas
+                    </button>
+                    <button onclick="switchTab('step5')" id="nav-step5" class="tab-btn px-3 py-2 text-sm font-medium text-gray-600 hover:text-bookish-700 transition flex items-center gap-1.5">
+                        <i data-lucide="rocket" class="w-4 h-4"></i> 5. Roadmap & Export
+                    </button>
+                </nav>
+
+                <!-- Action Button -->
+                <div class="flex items-center gap-2">
+                    <button onclick="exportProjectSummary()" class="bg-bookish-600 hover:bg-bookish-700 text-white text-xs sm:text-sm px-4 py-2 rounded-lg font-medium shadow-sm transition flex items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Exportar Plan</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Bar -->
+        <div class="md:hidden flex overflow-x-auto border-t border-bookish-100 bg-bookish-50/50 px-2 py-2 space-x-1">
+            <button onclick="switchTab('step1')" id="mobile-nav-step1" class="px-3 py-1.5 text-xs whitespace-nowrap rounded-md bg-bookish-200 text-bookish-900 font-medium">1. Tipo</button>
+            <button onclick="switchTab('step2')" id="mobile-nav-step2" class="px-3 py-1.5 text-xs whitespace-nowrap rounded-md text-gray-600 font-medium">2. Wireframe</button>
+            <button onclick="switchTab('step3')" id="mobile-nav-step3" class="px-3 py-1.5 text-xs whitespace-nowrap rounded-md text-gray-600 font-medium">3. Tech</button>
+            <button onclick="switchTab('step4')" id="mobile-nav-step4" class="px-3 py-1.5 text-xs whitespace-nowrap rounded-md text-gray-600 font-medium">4. Finanzas</button>
+            <button onclick="switchTab('step5')" id="mobile-nav-step5" class="px-3 py-1.5 text-xs whitespace-nowrap rounded-md text-gray-600 font-medium">5. Plan</button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- STEP 1: CONCEPCIÓN Y MODELO DE NEGOCIO -->
+        <section id="step1" class="tab-content block space-y-6">
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-bookish-100">
+                <div class="max-w-3xl">
+                    <span class="text-xs font-semibold tracking-wider text-bookish-600 uppercase bg-bookish-100 px-3 py-1 rounded-full">Paso 1: Concepto Inicial</span>
+                    <h1 class="font-serif text-3xl md:text-4xl font-bold text-bookish-900 mt-3">Elige el Modelo de Tu App para Lectoras</h1>
+                    <p class="text-gray-600 mt-2 text-base">Selecciona el propósito principal de tu aplicación. Esto ajustará los prototipos, recomendaciones técnicas y modelos financieros automáticamente.</p>
+                </div>
+
+                <!-- Name & Branding Inputs -->
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-bookish-50/60 p-5 rounded-xl border border-bookish-200">
+                    <div>
+                        <label class="block text-sm font-semibold text-bookish-900 mb-1">Nombre de tu App</label>
+                        <input type="text" id="appNameInput" value="BookMagic Tracker" oninput="updateAppName(this.value)" class="w-full px-4 py-2.5 rounded-lg border border-bookish-300 focus:ring-2 focus:ring-bookish-500 focus:border-bookish-500 bg-white text-sm" placeholder="Ej: Bookmarkia, BookTok Hub...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-bookish-900 mb-1">Slogan o Propuesta de Valor</label>
+                        <input type="text" id="appTaglineInput" value="Tu espacio mágico para leer y conectar" oninput="updateAppTagline(this.value)" class="w-full px-4 py-2.5 rounded-lg border border-bookish-300 focus:ring-2 focus:ring-bookish-500 focus:border-bookish-500 bg-white text-sm" placeholder="Ej: Organiza tus lecturas con vibra aesthetic">
+                    </div>
+                </div>
+
+                <!-- App Category Selector Cards -->
+                <div class="mt-8">
+                    <h2 class="text-lg font-bold text-bookish-900 mb-4">Selecciona la Categoria Principal:</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        
+                        <!-- Option 1: Tracker & Journal -->
+                        <div onclick="selectAppType('tracker')" id="card-tracker" class="app-type-card cursor-pointer rounded-xl p-5 border-2 border-bookish-500 bg-bookish-50/40 hover:shadow-md transition relative">
+                            <div class="absolute top-3 right-3 text-bookish-600">
+                                <i data-lucide="check-circle-2" class="w-5 h-5 check-icon"></i>
+                            </div>
+                            <div class="w-12 h-12 rounded-lg bg-bookish-100 text-bookish-700 flex items-center justify-center mb-4">
+                                <i data-lucide="bookmark" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-serif font-bold text-lg text-bookish-900">Tracker & Journal Digital</h3>
+                            <p class="text-xs text-gray-600 mt-2 leading-relaxed">Registro de lecturas, metas anuales, cronómetro de lectura, estadísticas personalizadas y retos decorativos.</p>
+                            <div class="mt-4 pt-3 border-t border-bookish-200/60 flex items-center justify-between text-xs text-bookish-700 font-medium">
+                                <span>Monetización:</span>
+                                <span class="bg-white px-2 py-0.5 rounded border border-bookish-200">Suscripción / Freemium</span>
+                            </div>
+                        </div>
+
+                        <!-- Option 2: Community & Club -->
+                        <div onclick="selectAppType('community')" id="card-community" class="app-type-card cursor-pointer rounded-xl p-5 border-2 border-gray-200 bg-white hover:border-bookish-300 hover:shadow-md transition relative">
+                            <div class="absolute top-3 right-3 text-gray-300">
+                                <i data-lucide="circle" class="w-5 h-5 check-icon"></i>
+                            </div>
+                            <div class="w-12 h-12 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center mb-4">
+                                <i data-lucide="users" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-serif font-bold text-lg text-bookish-900">Comunidad & Club</h3>
+                            <p class="text-xs text-gray-600 mt-2 leading-relaxed">Salas de debate sin spoilers, Buddy Reads (lecturas conjuntas), eventos en vivo y foros por tropos (Romantasy, etc.).</p>
+                            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600 font-medium">
+                                <span>Monetización:</span>
+                                <span class="bg-gray-50 px-2 py-0.5 rounded border border-gray-200">Membresía VIP / Entradas</span>
+                            </div>
+                        </div>
+
+                        <!-- Option 3: Shop & Subscription Box -->
+                        <div onclick="selectAppType('shop')" id="card-shop" class="app-type-card cursor-pointer rounded-xl p-5 border-2 border-gray-200 bg-white hover:border-bookish-300 hover:shadow-md transition relative">
+                            <div class="absolute top-3 right-3 text-gray-300">
+                                <i data-lucide="circle" class="w-5 h-5 check-icon"></i>
+                            </div>
+                            <div class="w-12 h-12 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center mb-4">
+                                <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-serif font-bold text-lg text-bookish-900">Tienda & Box Bookish</h3>
+                            <p class="text-xs text-gray-600 mt-2 leading-relaxed">Venta de fundas, velas aromáticas, marcapáginas de resina, cajas sorpresa mensuales y accesorios para Kindle.</p>
+                            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600 font-medium">
+                                <span>Monetización:</span>
+                                <span class="bg-gray-50 px-2 py-0.5 rounded border border-gray-200">Venta directa / Cajas</span>
+                            </div>
+                        </div>
+
+                        <!-- Option 4: AI Recommender -->
+                        <div onclick="selectAppType('ai_recommender')" id="card-ai_recommender" class="app-type-card cursor-pointer rounded-xl p-5 border-2 border-gray-200 bg-white hover:border-bookish-300 hover:shadow-md transition relative">
+                            <div class="absolute top-3 right-3 text-gray-300">
+                                <i data-lucide="circle" class="w-5 h-5 check-icon"></i>
+                            </div>
+                            <div class="w-12 h-12 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center mb-4">
+                                <i data-lucide="sparkles" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="font-serif font-bold text-lg text-bookish-900">Recomendador con IA</h3>
+                            <p class="text-xs text-gray-600 mt-2 leading-relaxed">Recomendaciones personalizadas por Tropos (Enemies to Lovers, Slow Burn), estado de ánimo y vibra estética.</p>
+                            <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600 font-medium">
+                                <span>Monetización:</span>
+                                <span class="bg-gray-50 px-2 py-0.5 rounded border border-gray-200">Afiliados / Micro-pagos</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Target Audience Insights for Selected Option -->
+                <div class="mt-8 p-5 bg-white border border-bookish-200 rounded-xl">
+                    <h3 class="font-serif font-bold text-bookish-900 text-md flex items-center gap-2">
+                        <i data-lucide="lightbulb" class="w-5 h-5 text-amber-500"></i>
+                        <span>Análisis de audiencia BookTok para este tipo de app:</span>
+                    </h3>
+                    <p id="audienceInsightText" class="text-sm text-gray-600 mt-2">
+                        Las lectoras de la comunidad BookTok adoran llevar registros estéticos de sus estadísticas de lectura (estrellas, spices, tropos). Una app de tracking freemium les permite compartir sus 'Wrap-ups' mensuales en Instagram/TikTok fácilmente.
+                    </p>
+                </div>
+
+                <!-- Bottom Next Step Button -->
+                <div class="mt-8 flex justify-end">
+                    <button onclick="switchTab('step2')" class="bg-bookish-600 hover:bg-bookish-700 text-white px-6 py-3 rounded-xl font-medium shadow transition flex items-center gap-2">
+                        <span>Ir al Simulador de Wireframe</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- STEP 2: SIMULADOR DE WIREFRAME E INTERFAZ -->
+        <section id="step2" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                
+                <!-- Left Column: Customization Controls (5 cols) -->
+                <div class="lg:col-span-5 bg-white rounded-2xl p-6 shadow-sm border border-bookish-100 space-y-6">
+                    <div>
+                        <span class="text-xs font-semibold tracking-wider text-bookish-600 uppercase bg-bookish-100 px-3 py-1 rounded-full">Paso 2: Diseño Visual</span>
+                        <h2 class="font-serif text-2xl font-bold text-bookish-900 mt-2">Simulador de UI & Temas</h2>
+                        <p class="text-xs text-gray-600 mt-1">Personaliza los colores, la estética y navega por las pantallas en vivo.</p>
+                    </div>
+
+                    <!-- Theme Selector -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Estética / Paleta de Color</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="setAppTheme('boho')" id="theme-boho" class="p-3 rounded-lg border-2 border-bookish-500 bg-bookish-50 text-left flex items-center gap-3">
+                                <div class="flex -space-x-1">
+                                    <div class="w-4 h-4 rounded-full bg-[#FAF6F0]"></div>
+                                    <div class="w-4 h-4 rounded-full bg-[#B2815A]"></div>
+                                    <div class="w-4 h-4 rounded-full bg-[#643F32]"></div>
+                                </div>
+                                <span class="text-xs font-bold text-bookish-900">Boho Rose</span>
+                            </button>
+
+                            <button onclick="setAppTheme('dark_academia')" id="theme-dark_academia" class="p-3 rounded-lg border border-gray-200 bg-slate-900 text-white text-left flex items-center gap-3">
+                                <div class="flex -space-x-1">
+                                    <div class="w-4 h-4 rounded-full bg-[#1A1A16]"></div>
+                                    <div class="w-4 h-4 rounded-full bg-[#C59F7B]"></div>
+                                    <div class="w-4 h-4 rounded-full bg-[#2C2C26]"></div>
+                                </div>
+                                <span class="text-xs font-bold">Dark Academia</span>
+                            </button>
+
+                            <button onclick="setAppTheme('pastel')" id="theme-pastel" class="p-3 rounded-lg border border-gray-200 bg-pink-50 text-left flex items-center gap-3">
+                                <div class="flex -space-x-1">
+                                    <div class="w-4 h-4 rounded-full bg-[#FFF0F5]"></div>
+                                    <div class="w-4 h-4 rounded-full bg-[#D17B88]"></div>
+                                    <div class="w-4 h-4 rounded-full bg-[#E8C5CE]"></div>
+                                </div>
+                                <span class="text-xs font-bold text-pink-900">Pastel Bookworm</span>
+                            </button>
+
+                            <button onclick="setAppTheme('library')" id="theme-library" class="p-3 rounded-lg border border-gray-200 bg-amber-950 text-amber-100 text-left flex items-center gap-3">
+                                <div class="flex -space-x-1">
+                                    <div class="w-4 h-4 rounded-full bg-[#2A1810]"></div>
+                                    <div class="w-4 h-4 rounded-full bg-[#D4A373]"></div>
+                                    <div class="w-4 h-4 rounded-full bg-[#CCD5AE]"></div>
+                                </div>
+                                <span class="text-xs font-bold">Library Wood</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Screen Navigator -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3">Navegar Pantallas del Prototipo</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setMockupScreen('home')" id="screen-btn-home" class="screen-nav-btn px-3 py-2 text-xs font-medium rounded-lg bg-bookish-600 text-white flex items-center gap-2 justify-center">
+                                <i data-lucide="home" class="w-3.5 h-3.5"></i> Home / Inicio
+                            </button>
+                            <button onclick="setMockupScreen('catalog')" id="screen-btn-catalog" class="screen-nav-btn px-3 py-2 text-xs font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2 justify-center">
+                                <i data-lucide="library" class="w-3.5 h-3.5"></i> Catálogo / Biblioteca
+                            </button>
+                            <button onclick="setMockupScreen('detail')" id="screen-btn-detail" class="screen-nav-btn px-3 py-2 text-xs font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2 justify-center">
+                                <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Ficha de Libro
+                            </button>
+                            <button onclick="setMockupScreen('profile')" id="screen-btn-profile" class="screen-nav-btn px-3 py-2 text-xs font-medium rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2 justify-center">
+                                <i data-lucide="user" class="w-3.5 h-3.5"></i> Perfil / Logros
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Features Checklist for this screen -->
+                    <div class="p-4 bg-bookish-50/70 border border-bookish-200 rounded-xl space-y-2">
+                        <h4 class="text-xs font-bold text-bookish-900 uppercase tracking-wide">Elementos clave incluidos:</h4>
+                        <ul id="screenFeaturesList" class="text-xs text-gray-600 space-y-1.5 list-disc list-inside">
+                            <li>Resumen de meta de lectura del año.</li>
+                            <li>Libro en progreso con barra de avance %.</li>
+                            <li>Acceso rápido a cronómetro de lectura.</li>
+                        </ul>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-100 flex justify-between">
+                        <button onclick="switchTab('step1')" class="text-xs text-gray-500 hover:text-bookish-700 font-medium">← Volver a Paso 1</button>
+                        <button onclick="switchTab('step3')" class="bg-bookish-600 hover:bg-bookish-700 text-white px-5 py-2 rounded-lg text-xs font-medium shadow flex items-center gap-1.5">
+                            Siguiente: Tech Stack →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Interactive Phone Mockup (7 cols) -->
+                <div class="lg:col-span-7 flex justify-center items-center py-4">
+                    
+                    <!-- Mobile Frame Outer -->
+                    <div class="relative w-[340px] h-[680px] bg-slate-900 rounded-[48px] p-4 shadow-2xl border-4 border-slate-700 flex flex-col justify-between select-none">
+                        <!-- Speaker & Notch -->
+                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-36 h-6 bg-slate-900 rounded-b-2xl z-30 flex items-center justify-center">
+                            <div class="w-12 h-1.5 bg-slate-700 rounded-full"></div>
+                        </div>
+
+                        <!-- Phone Screen Container -->
+                        <div id="phoneMockupScreen" class="w-full h-full bg-[#faf6f0] rounded-[36px] overflow-hidden flex flex-col pt-6 pb-2 px-3 text-gray-800 relative phone-screen">
+                            
+                            <!-- Phone Status Bar -->
+                            <div class="flex justify-between items-center text-[10px] px-2 pt-1 font-semibold opacity-70 mb-2">
+                                <span>9:41</span>
+                                <div class="flex items-center gap-1">
+                                    <i data-lucide="wifi" class="w-3 h-3"></i>
+                                    <i data-lucide="battery" class="w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+
+                            <!-- App Mockup Dynamic Header -->
+                            <div class="flex justify-between items-center px-2 py-2 mb-2">
+                                <div>
+                                    <h3 id="mockupAppTitle" class="font-serif font-bold text-sm tracking-tight text-bookish-900">BookMagic</h3>
+                                    <p id="mockupAppTagline" class="text-[9px] text-gray-500 truncate max-w-[150px]">Tu espacio de lectura</p>
+                                </div>
+                                <div class="w-7 h-7 rounded-full bg-bookish-200 flex items-center justify-center text-bookish-800 text-xs font-bold">
+                                    <i data-lucide="bell" class="w-3.5 h-3.5"></i>
+                                </div>
+                            </div>
+
+                            <!-- Screen Dynamic Content Container -->
+                            <div id="mockupDynamicBody" class="flex-grow overflow-y-auto px-1 space-y-3 pb-12">
+                                <!-- JS will populate screen content here -->
+                            </div>
+
+                            <!-- Phone Bottom Nav Bar -->
+                            <div class="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur border border-gray-200/80 rounded-2xl py-2 px-4 flex justify-between items-center text-xs shadow-lg z-20">
+                                <button onclick="setMockupScreen('home')" class="flex flex-col items-center text-bookish-700">
+                                    <i data-lucide="home" class="w-4 h-4"></i>
+                                    <span class="text-[9px] mt-0.5">Inicio</span>
+                                </button>
+                                <button onclick="setMockupScreen('catalog')" class="flex flex-col items-center text-gray-400 hover:text-bookish-700">
+                                    <i data-lucide="compass" class="w-4 h-4"></i>
+                                    <span class="text-[9px] mt-0.5">Explorar</span>
+                                </button>
+                                <button onclick="setMockupScreen('detail')" class="flex flex-col items-center text-gray-400 hover:text-bookish-700">
+                                    <i data-lucide="bookmark" class="w-4 h-4"></i>
+                                    <span class="text-[9px] mt-0.5">Lectura</span>
+                                </button>
+                                <button onclick="setMockupScreen('profile')" class="flex flex-col items-center text-gray-400 hover:text-bookish-700">
+                                    <i data-lucide="user" class="w-4 h-4"></i>
+                                    <span class="text-[9px] mt-0.5">Perfil</span>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- STEP 3: TECH STACK Y GUÍA NO-CODE -->
+        <section id="step3" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-bookish-100">
+                <div class="max-w-3xl">
+                    <span class="text-xs font-semibold tracking-wider text-bookish-600 uppercase bg-bookish-100 px-3 py-1 rounded-full">Paso 3: Tecnología y Presupuesto</span>
+                    <h2 class="font-serif text-3xl font-bold text-bookish-900 mt-2">¿Cómo Construir tu App sin Saber Programar?</h2>
+                    <p class="text-gray-600 mt-2 text-sm">Para un emprendedor inicial, las herramientas **No-Code** o una **PWA (Progressive Web App)** te permiten lanzar en semanas con un presupuesto mínimo.</p>
+                </div>
+
+                <!-- No-Code Tools Comparison Table -->
+                <div class="mt-8 overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-bookish-50 border-b border-bookish-200 text-xs uppercase font-bold text-bookish-900 tracking-wider">
+                                <th class="p-4">Plataforma</th>
+                                <th class="p-4">Dificultad</th>
+                                <th class="p-4">Ideal Para</th>
+                                <th class="p-4">Costo Estimado</th>
+                                <th class="p-4">Publicación</th>
+                                <th class="p-4">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-xs">
+                            <tr class="hover:bg-gray-50/80 transition">
+                                <td class="p-4 font-bold text-bookish-900 flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> FlutterFlow
+                                </td>
+                                <td class="p-4">Media (Curva suave)</td>
+                                <td class="p-4">Apps nativas muy fluidas con diseño personalizado e IA.</td>
+                                <td class="p-4 font-semibold text-gray-700">$30 - $70 / mes</td>
+                                <td class="p-4">App Store & Google Play</td>
+                                <td class="p-4">
+                                    <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-1 rounded">Recomendado</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/80 transition">
+                                <td class="p-4 font-bold text-bookish-900 flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500"></span> Glide Apps
+                                </td>
+                                <td class="p-4">Muy Fácil (1-2 días)</td>
+                                <td class="p-4">Trackers simples, catálogos y comunidades desde Google Sheets.</td>
+                                <td class="p-4 font-semibold text-gray-700">$0 - $25 / mes</td>
+                                <td class="p-4">Web / PWA Móvil</td>
+                                <td class="p-4">
+                                    <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-1 rounded">Más Rápido</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/80 transition">
+                                <td class="p-4 font-bold text-bookish-900 flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-purple-500"></span> Softr + Airtable
+                                </td>
+                                <td class="p-4">Fácil</td>
+                                <td class="p-4">Comunidades de lectura con membresías de pago y eventos.</td>
+                                <td class="p-4 font-semibold text-gray-700">$0 - $49 / mes</td>
+                                <td class="p-4">Web App Responsiva</td>
+                                <td class="p-4">
+                                    <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-1 rounded">Membresías</span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-gray-50/80 transition">
+                                <td class="p-4 font-bold text-bookish-900 flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span> Shopify + App Builder
+                                </td>
+                                <td class="p-4">Fácil</td>
+                                <td class="p-4">Tiendas físicas de productos bookish y Cajas Literarias.</td>
+                                <td class="p-4 font-semibold text-gray-700">$29 / mes</td>
+                                <td class="p-4">Web & PWA</td>
+                                <td class="p-4">
+                                    <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-1 rounded">E-commerce</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Estimated Initial Setup Cost Calculator -->
+                <div class="mt-8 bg-bookish-50/50 p-6 rounded-xl border border-bookish-200">
+                    <h3 class="font-serif font-bold text-bookish-900 text-lg mb-4 flex items-center gap-2">
+                        <i data-lucide="coins" class="w-5 h-5 text-bookish-600"></i>
+                        <span>Desglose Estimado de Inversión Inicial (Primeros 3 Meses)</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-lg border border-bookish-100">
+                            <span class="text-xs text-gray-500 font-medium">Dominio & Hosting Web</span>
+                            <p class="text-xl font-bold text-bookish-900 mt-1">$15 - $25 <span class="text-xs font-normal text-gray-500">/año</span></p>
+                            <p class="text-[11px] text-gray-500 mt-1">Para la landing page de captura de emails.</p>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-bookish-100">
+                            <span class="text-xs text-gray-500 font-medium">Plataforma No-Code (Mensual)</span>
+                            <p class="text-xl font-bold text-bookish-900 mt-1">$0 - $45 <span class="text-xs font-normal text-gray-500">/mes</span></p>
+                            <p class="text-[11px] text-gray-500 mt-1">Planes iniciales gratis o starter.</p>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-lg border border-bookish-100">
+                            <span class="text-xs text-gray-500 font-medium">Cuentas Desarrollador (Opcional)</span>
+                            <p class="text-xl font-bold text-bookish-900 mt-1">$25 - $124 <span class="text-xs font-normal text-gray-500">único</span></p>
+                            <p class="text-[11px] text-gray-500 mt-1">Google Play ($25 único) / Apple ($99/año).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Nav -->
+                <div class="mt-8 flex justify-between">
+                    <button onclick="switchTab('step2')" class="text-xs text-gray-500 hover:text-bookish-700 font-medium">← Volver a Prototipo</button>
+                    <button onclick="switchTab('step4')" class="bg-bookish-600 hover:bg-bookish-700 text-white px-6 py-3 rounded-xl font-medium shadow transition flex items-center gap-2">
+                        <span>Ir a Calculadora Financiera</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- STEP 4: CALCULADORA FINANCIERA & MONETIZACIÓN -->
+        <section id="step4" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-bookish-100">
+                <div>
+                    <span class="text-xs font-semibold tracking-wider text-bookish-600 uppercase bg-bookish-100 px-3 py-1 rounded-full">Paso 4: Modelo Financiero</span>
+                    <h2 class="font-serif text-3xl font-bold text-bookish-900 mt-2">Simulador de Proyección de Ingresos</h2>
+                    <p class="text-gray-600 mt-1 text-sm">Ajusta los usuarios y el precio para ver la rentabilidad proyectada a 6 y 12 meses.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-8">
+                    
+                    <!-- Controls Column -->
+                    <div class="lg:col-span-5 space-y-5 bg-bookish-50/40 p-5 rounded-xl border border-bookish-200">
+                        <h3 class="font-serif font-bold text-bookish-900 text-md">Variables de Negocio:</h3>
+
+                        <!-- Active Users Slider -->
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+                                <span>Usuarios Activos Mensuales (MAU):</span>
+                                <span id="mauValue" class="text-bookish-700 font-bold">1,000</span>
+                            </div>
+                            <input type="range" id="mauSlider" min="100" max="10000" step="100" value="1000" oninput="calculateFinancials()" class="w-full accent-bookish-600">
+                        </div>
+
+                        <!-- Conversion Rate Slider -->
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+                                <span>% Conversión a Pago / Suscriptores:</span>
+                                <span id="conversionValue" class="text-bookish-700 font-bold">4.0%</span>
+                            </div>
+                            <input type="range" id="conversionSlider" min="0.5" max="15" step="0.5" value="4.0" oninput="calculateFinancials()" class="w-full accent-bookish-600">
+                        </div>
+
+                        <!-- Price per month Slider -->
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+                                <span>Precio Promedio / Mes (USD):</span>
+                                <span id="priceValue" class="text-bookish-700 font-bold">$3.99</span>
+                            </div>
+                            <input type="range" id="priceSlider" min="0.99" max="29.99" step="0.50" value="3.99" oninput="calculateFinancials()" class="w-full accent-bookish-600">
+                        </div>
+
+                        <!-- Fixed Operating Cost -->
+                        <div>
+                            <div class="flex justify-between text-xs font-semibold text-gray-700 mb-1">
+                                <span>Costos Operativos Mensuales (Servidores/Herramientas):</span>
+                                <span id="costValue" class="text-bookish-700 font-bold">$35 USD</span>
+                            </div>
+                            <input type="range" id="costSlider" min="10" max="200" step="5" value="35" oninput="calculateFinancials()" class="w-full accent-bookish-600">
+                        </div>
+
+                        <div class="p-3 bg-white rounded-lg border border-bookish-200 text-xs text-gray-600 space-y-1">
+                            <span class="font-bold text-bookish-900 block">Resumen de Suscriptores Pago:</span>
+                            <p>Con <span id="summaryPayingUsers" class="font-bold text-bookish-700">40</span> usuarias pagando <span id="summaryPrice" class="font-bold">$3.99/mes</span>.</p>
+                        </div>
+                    </div>
+
+                    <!-- Metrics Results & Chart Column -->
+                    <div class="lg:col-span-7 space-y-6">
+                        
+                        <!-- Financial KPI Cards -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            <div class="bg-white p-4 rounded-xl border border-bookish-200 shadow-sm">
+                                <span class="text-[11px] font-semibold text-gray-500 uppercase">Ingreso Mensual (MRR)</span>
+                                <p id="mrrDisplay" class="text-2xl font-bold text-bookish-900 mt-1">$159.60</p>
+                                <span class="text-[10px] text-emerald-600 font-medium">Bruto antes de costos</span>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl border border-bookish-200 shadow-sm">
+                                <span class="text-[11px] font-semibold text-gray-500 uppercase">Ganancia Neta / Mes</span>
+                                <p id="netMonthlyDisplay" class="text-2xl font-bold text-emerald-600 mt-1">$124.60</p>
+                                <span class="text-[10px] text-gray-500">Descontando herramientas</span>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl border border-bookish-200 shadow-sm col-span-2 sm:col-span-1">
+                                <span class="text-[11px] font-semibold text-gray-500 uppercase">Proyección Año 1</span>
+                                <p id="year1Display" class="text-2xl font-bold text-bookish-700 mt-1">$1,495.20</p>
+                                <span class="text-[10px] text-gray-500">Ganancia neta acumulada</span>
+                            </div>
+                        </div>
+
+                        <!-- Chart Canvas -->
+                        <div class="bg-white p-4 rounded-xl border border-bookish-200 shadow-sm h-64 relative">
+                            <canvas id="financialChart"></canvas>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Bottom Navigation -->
+                <div class="mt-8 flex justify-between">
+                    <button onclick="switchTab('step3')" class="text-xs text-gray-500 hover:text-bookish-700 font-medium">← Volver a Tech Stack</button>
+                    <button onclick="switchTab('step5')" class="bg-bookish-600 hover:bg-bookish-700 text-white px-6 py-3 rounded-xl font-medium shadow transition flex items-center gap-2">
+                        <span>Ver Roadmap & Guardar Plan</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- STEP 5: ROADMAP DE LANZAMIENTO Y CHECKLIST -->
+        <section id="step5" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-bookish-100">
+                <div class="max-w-3xl">
+                    <span class="text-xs font-semibold tracking-wider text-bookish-600 uppercase bg-bookish-100 px-3 py-1 rounded-full">Paso 5: Plan de Acción</span>
+                    <h2 class="font-serif text-3xl font-bold text-bookish-900 mt-2">Roadmap de Lanzamiento (4 Semanas)</h2>
+                    <p class="text-gray-600 mt-1 text-sm">Marca las tareas a medida que avances. Puedes descargar este plan completo para mantenerte enfocada.</p>
+                </div>
+
+                <!-- Interactive Checklist Steps -->
+                <div class="mt-8 space-y-4">
+                    
+                    <!-- Phase 1 -->
+                    <div class="border border-bookish-200 rounded-xl p-5 bg-bookish-50/30">
+                        <div class="flex items-center justify-between cursor-pointer" onclick="togglePhase('phase1Content')">
+                            <div class="flex items-center gap-3">
+                                <span class="w-7 h-7 rounded-full bg-bookish-600 text-white font-bold text-xs flex items-center justify-center">1</span>
+                                <div>
+                                    <h3 class="font-bold text-bookish-900 text-sm">Semana 1: Validación & Audiencia Inicial</h3>
+                                    <p class="text-xs text-gray-500">Creación de cuenta en TikTok/Instagram y lista de espera.</p>
+                                </div>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                        <div id="phase1Content" class="mt-4 pt-3 border-t border-bookish-200/60 space-y-2 text-xs">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked class="rounded text-bookish-600 focus:ring-bookish-500 w-4 h-4">
+                                <span>Crear perfil de TikTok e Instagram con el nombre de la app.</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked class="rounded text-bookish-600 focus:ring-bookish-500 w-4 h-4">
+                                <span>Publicar 3 vídeos cortos mostrando los prototipos visuales (detrás de cámaras).</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="rounded text-bookish-600 focus:ring-bookish-500 w-4 h-4">
+                                <span>Crear un formulario gratuito en Tally.so o Typeform para capturar emails de Beta Testers.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Phase 2 -->
+                    <div class="border border-bookish-200 rounded-xl p-5 bg-bookish-50/30">
+                        <div class="flex items-center justify-between cursor-pointer" onclick="togglePhase('phase2Content')">
+                            <div class="flex items-center gap-3">
+                                <span class="w-7 h-7 rounded-full bg-bookish-600 text-white font-bold text-xs flex items-center justify-center">2</span>
+                                <div>
+                                    <h3 class="font-bold text-bookish-900 text-sm">Semana 2: Construcción del PMV (Producto Mínimo Viable)</h3>
+                                    <p class="text-xs text-gray-500">Ensamblaje no-code de la app.</p>
+                                </div>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                        <div id="phase2Content" class="mt-4 pt-3 border-t border-bookish-200/60 space-y-2 text-xs">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="rounded text-bookish-600 focus:ring-bookish-500 w-4 h-4">
+                                <span>Configurar la base de datos básica (Airtable o Google Sheets).</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="rounded text-bookish-600 focus:ring-bookish-500 w-4 h-4">
+                                <span>Diseñar la interfaz en la herramienta elegida (FlutterFlow / Glide / Softr).</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="rounded text-bookish-600 focus:ring-bookish-500 w-4 h-4">
+                                <span>Conectar la pasarela de pagos (Stripe / MercadoPago).</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Phase 3 -->
+                    <div class="border border-bookish-200 rounded-xl p-5 bg-bookish-50/30">
+                        <div class="flex items-center justify-between cursor-pointer" onclick="togglePhase('phase3Content')">
+                            <div class="flex items-center gap-3">
+                                <span class="w-7 h-7 rounded-full bg-bookish-600 text-white font-bold text-xs flex items-center justify-center">3</span>
+                                <div>
+                                    <h3 class="font-bold text-bookish-900 text-sm">Semana 3: Prueba Beta Privada con BookTokers</h3>
+                                    <p class="text-xs text-gray-500">Retroalimentación con una comunidad reducida.</p>
+                                </div>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                        <div id="phase3Content" class="mt-4 pt-3 border-t border-bookish-200/60 space-y-2 text-xs">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="rounded text-bookish-600 focus:ring-bookish-500 w-4 h-4">
+                                <span>Invitar a 15-30 lectoras de la lista de espera a probar la app gratis.</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="rounded text-bookish-600 focus:ring-bookish-500 w-4 h-4">
+                                <span>Corregir errores de navegación e incluir feedback estético.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Phase 4 -->
+                    <div class="border border-bookish-200 rounded-xl p-5 bg-bookish-50/30">
+                        <div class="flex items-center justify-between cursor-pointer" onclick="togglePhase('phase4Content')">
+                            <div class="flex items-center gap-3">
+                                <span class="w-7 h-7 rounded-full bg-bookish-600 text-white font-bold text-xs flex items-center justify-center">4</span>
+                                <div>
+                                    <h3 class="font-bold text-bookish-900 text-sm">Semana 4: Lanzamiento Público & Oferta de Apertura</h3>
+                                    <p class="text-xs text-gray-500">Publicación oficial e impulso de ventas inicial.</p>
+                                </div>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-400"></i>
+                        </div>
+                        <div id="phase4Content" class="mt-4 pt-3 border-t border-bookish-200/60 space-y-2 text-xs">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="rounded text-bookish-600 focus:ring-bookish-500 w-4 h-4">
+                                <span>Lanzar oferta de fundador (Descuento anual del 30% a los primeros 50 usuarios).</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="rounded text-bookish-600 focus:ring-bookish-500 w-4 h-4">
+                                <span>Enviar emails masivos a la lista de espera con el link de descarga.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Export Final Project Action Box -->
+                <div class="mt-8 bg-bookish-600 text-white p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4 shadow-md">
+                    <div>
+                        <h3 class="font-serif font-bold text-lg">¡Tu Plan de Proyecto está Listo!</h3>
+                        <p class="text-xs text-bookish-100 mt-1">Descarga el documento de planificación completo con los detalles elegidos, UI y finanzas.</p>
+                    </div>
+                    <button onclick="exportProjectSummary()" class="bg-white text-bookish-900 hover:bg-bookish-50 px-6 py-3 rounded-xl text-xs font-bold shadow-md transition whitespace-nowrap flex items-center gap-2">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Descargar Resumen PDF/TXT</span>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-bookish-200 py-6 mt-12 text-center text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 LectorApp Studio — Herramienta interactiva para emprendedoras del mundo literario.</p>
+        </div>
+    </footer>
+
+
+    <!-- APPLICATION JAVASCRIPT LOGIC -->
+    <script>
+        // --- GLOBAL STATE ---
+        const state = {
+            appName: "BookMagic Tracker",
+            appTagline: "Tu espacio mágico para leer y conectar",
+            appType: "tracker", // tracker, community, shop, ai_recommender
+            theme: "boho", // boho, dark_academia, pastel, library
+            mockupScreen: "home", // home, catalog, detail, profile
+            mau: 1000,
+            conversion: 4.0,
+            price: 3.99,
+            monthlyCost: 35
+        };
+
+        // Initialize Lucide Icons
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initChart();
+            renderMockupScreen();
+        });
+
+        // Tab Navigation Switcher
+        function switchTab(stepId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(stepId).classList.remove('hidden');
+
+            // Desktop Tab active state
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
+            const activeBtn = document.getElementById(`nav-${stepId}`);
+            if (activeBtn) activeBtn.classList.add('tab-active');
+
+            // Re-render chart if navigating to Step 4
+            if (stepId === 'step4') {
+                setTimeout(() => {
+                    if (window.finChart) window.finChart.resize();
+                }, 100);
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- STEP 1 LOGIC ---
+        function updateAppName(val) {
+            state.appName = val || "Mi BookApp";
+            document.getElementById('mockupAppTitle').innerText = state.appName;
+        }
+
+        function updateAppTagline(val) {
+            state.appTagline = val || "Espacio de lectura";
+            document.getElementById('mockupAppTagline').innerText = state.appTagline;
+        }
+
+        function selectAppType(type) {
+            state.appType = type;
+
+            // Update Cards border UI
+            document.querySelectorAll('.app-type-card').forEach(card => {
+                card.classList.remove('border-bookish-500', 'bg-bookish-50/40');
+                card.classList.add('border-gray-200', 'bg-white');
+                card.querySelector('.check-icon').parentNode.classList.remove('text-bookish-600');
+                card.querySelector('.check-icon').parentNode.classList.add('text-gray-300');
+            });
+
+            const selectedCard = document.getElementById(`card-${type}`);
+            selectedCard.classList.add('border-bookish-500', 'bg-bookish-50/40');
+            selectedCard.classList.remove('border-gray-200', 'bg-white');
+            selectedCard.querySelector('.check-icon').parentNode.classList.add('text-bookish-600');
+
+            // Update Insights Text
+            const insights = {
+                tracker: "Las lectoras de BookTok adoran llevar registros estéticos de sus lecturas (estrellas, spices, tropos). Una app de tracking freemium les permite compartir sus 'Wrap-ups' mensuales en redes sociales fácilmente.",
+                community: "La comunidad Bookish busca constantemente personas con quienes discutir finales sin dar spoilers. Los 'Buddy Reads' con salas privadas por capítulos generan alta retención.",
+                shop: "Las lectoras gastan un promedio recurrente en accesorios de lectura (velas aromáticas, fundas, marcapáginas). Un modelo de tienda o caja de suscripción garantiza ingresos recurrentes.",
+                ai_recommender: "El mayor problema de una lectora tras terminar una gran saga es el 'resaca literaria'. Un recomendador basado en tropas específicas (Ej: Enemies to Lovers + Fantasía) resuelve esta dolorosa necesidad."
+            };
+            document.getElementById('audienceInsightText').innerText = insights[type];
+
+            // Re-render mockup screen for new type
+            renderMockupScreen();
+        }
+
+        // --- STEP 2 LOGIC (UI & PHONE MOCKUP) ---
+        function setAppTheme(themeName) {
+            state.theme = themeName;
+            const phoneScreen = document.getElementById('phoneMockupScreen');
+
+            // Remove previous theme classes
+            phoneScreen.className = "w-full h-full rounded-[36px] overflow-hidden flex flex-col pt-6 pb-2 px-3 text-gray-800 relative phone-screen ";
+
+            if (themeName === 'boho') {
+                phoneScreen.classList.add('bg-[#faf6f0]', 'text-gray-800');
+            } else if (themeName === 'dark_academia') {
+                phoneScreen.classList.add('bg-[#1a1a16]', 'text-stone-200');
+            } else if (themeName === 'pastel') {
+                phoneScreen.classList.add('bg-[#fff0f5]', 'text-pink-950');
+            } else if (themeName === 'library') {
+                phoneScreen.classList.add('bg-[#2a1810]', 'text-amber-100');
+            }
+
+            // Highlight theme button
+            document.querySelectorAll('[id^="theme-"]').forEach(btn => btn.classList.remove('border-bookish-500', 'border-2'));
+            document.getElementById(`theme-${themeName}`).classList.add('border-bookish-500', 'border-2');
+
+            renderMockupScreen();
+        }
+
+        function setMockupScreen(screenName) {
+            state.mockupScreen = screenName;
+
+            // Update screen switcher buttons UI
+            document.querySelectorAll('.screen-nav-btn').forEach(btn => {
+                btn.classList.remove('bg-bookish-600', 'text-white');
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            const activeNavBtn = document.getElementById(`screen-btn-${screenName}`);
+            if (activeNavBtn) {
+                activeNavBtn.classList.remove('bg-gray-100', 'text-gray-700');
+                activeNavBtn.classList.add('bg-bookish-600', 'text-white');
+            }
+
+            renderMockupScreen();
+        }
+
+        function renderMockupScreen() {
+            const body = document.getElementById('mockupDynamicBody');
+            const featuresList = document.getElementById('screenFeaturesList');
+            const isDark = state.theme === 'dark_academia' || state.theme === 'library';
+
+            const cardBg = isDark ? 'bg-white/10 border-white/10 text-white' : 'bg-white border-gray-100 text-gray-800';
+            const accentBg = isDark ? 'bg-amber-600 text-white' : 'bg-bookish-600 text-white';
+
+            if (state.mockupScreen === 'home') {
+                featuresList.innerHTML = `
+                    <li>Panel principal con resumen de lectura actual.</li>
+                    <li>Barra de progreso de meta anual.</li>
+                    <li>Accesos rápidos a cronómetro de lectura.</li>
+                `;
+
+                body.innerHTML = `
+                    <div class="${cardBg} p-3 rounded-xl border shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider opacity-75">Leyendo Ahora</span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-600 px-1.5 py-0.5 rounded font-bold">68%</span>
+                        </div>
+                        <div class="flex gap-2.5 items-center">
+                            <div class="w-10 h-14 bg-stone-300 rounded shadow flex items-center justify-center text-[9px] font-bold text-gray-600">Alas de Sangre</div>
+                            <div class="flex-grow">
+                                <h4 class="font-serif font-bold text-xs">Alas de Sangre</h4>
+                                <p class="text-[10px] opacity-70">Rebecca Yarros</p>
+                                <div class="w-full bg-gray-200/50 rounded-full h-1.5 mt-2">
+                                    <div class="bg-bookish-600 h-1.5 rounded-full" style="width: 68%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="${cardBg} p-2.5 rounded-xl border text-center">
+                            <span class="text-[9px] opacity-70 block">Meta 2026</span>
+                            <span class="text-sm font-bold">24 / 40</span>
+                            <span class="text-[8px] block opacity-60">Libros leídos</span>
+                        </div>
+                        <div class="${cardBg} p-2.5 rounded-xl border text-center">
+                            <span class="text-[9px] opacity-70 block">Racha</span>
+                            <span class="text-sm font-bold text-amber-500 flex items-center justify-center gap-0.5">🔥 12 Días</span>
+                            <span class="text-[8px] block opacity-60">¡Casi rompes récord!</span>
+                        </div>
+                    </div>
+
+                    <div class="${cardBg} p-3 rounded-xl border">
+                        <span class="text-[10px] font-bold block mb-1">Tu Trope Favorito este mes:</span>
+                        <div class="flex gap-1">
+                            <span class="text-[8px] bg-purple-500/20 text-purple-700 px-2 py-0.5 rounded-full font-semibold">Enemies to Lovers</span>
+                            <span class="text-[8px] bg-pink-500/20 text-pink-700 px-2 py-0.5 rounded-full font-semibold">Slow Burn</span>
+                        </div>
+                    </div>
+                `;
+            } else if (state.mockupScreen === 'catalog') {
+                featuresList.innerHTML = `
+                    <li>Buscador de libros con filtro por Tropos.</li>
+                    <li>Vista de cuadrícula estético con portadas.</li>
+                    <li>Indicadores de 'Spice level' (🌶️).</li>
+                `;
+
+                body.innerHTML = `
+                    <div class="relative">
+                        <input type="text" placeholder="Buscar por título, autor o trope..." class="w-full text-[10px] px-3 py-1.5 rounded-lg border border-gray-300 ${isDark ? 'bg-white/10 text-white placeholder-gray-400' : 'bg-white text-gray-800'}">
+                    </div>
+
+                    <div class="flex gap-1 overflow-x-auto pb-1 text-[9px]">
+                        <span class="${accentBg} px-2 py-0.5 rounded-full whitespace-nowrap">Todos</span>
+                        <span class="bg-gray-200/50 px-2 py-0.5 rounded-full whitespace-nowrap opacity-80">Romantasy</span>
+                        <span class="bg-gray-200/50 px-2 py-0.5 rounded-full whitespace-nowrap opacity-80">Dark Romance</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="${cardBg} p-2 rounded-lg border flex flex-col items-center text-center">
+                            <div class="w-16 h-22 bg-purple-200/60 rounded shadow mb-1 flex items-center justify-center text-[8px] font-bold">Corte de Rosas</div>
+                            <span class="font-bold text-[10px] truncate w-full">ACOTAR</span>
+                            <span class="text-[8px] opacity-70">Sarah J. Maas</span>
+                            <span class="text-[8px] text-amber-500 mt-0.5">⭐⭐⭐⭐⭐ (4.9)</span>
+                        </div>
+                        <div class="${cardBg} p-2 rounded-lg border flex flex-col items-center text-center">
+                            <div class="w-16 h-22 bg-pink-200/60 rounded shadow mb-1 flex items-center justify-center text-[8px] font-bold">Asistente del Villano</div>
+                            <span class="font-bold text-[10px] truncate w-full">Assistant to the Villain</span>
+                            <span class="text-[8px] opacity-70">Hannah Nicole</span>
+                            <span class="text-[8px] text-amber-500 mt-0.5">⭐⭐⭐⭐ (4.5)</span>
+                        </div>
+                    </div>
+                `;
+            } else if (state.mockupScreen === 'detail') {
+                featuresList.innerHTML = `
+                    <li>Ficha extendida de libro con calificación personal.</li>
+                    <li>Medidor de Spice (Nivel de erotismo/romance).</li>
+                    <li>Botón de adición a estanterías personalizadas.</li>
+                `;
+
+                body.innerHTML = `
+                    <div class="${cardBg} p-3 rounded-xl border flex gap-3 items-center">
+                        <div class="w-14 h-20 bg-rose-200/80 rounded shadow flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-center p-1">Un Reino de Carne y Fuego</div>
+                        <div>
+                            <span class="text-[8px] bg-rose-500/20 text-rose-700 px-1.5 py-0.5 rounded font-bold">Fantasía Romántica</span>
+                            <h4 class="font-serif font-bold text-xs mt-1">De Sangre y Cenizas</h4>
+                            <p class="text-[9px] opacity-70">Jennifer L. Armentrout</p>
+                            <div class="flex items-center gap-1 mt-1 text-[9px]">
+                                <span class="text-amber-500">🌶️🌶️🌶️🌶️</span>
+                                <span class="opacity-60">(Spice 4/5)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="${cardBg} p-3 rounded-xl border text-[10px] space-y-2">
+                        <span class="font-bold block">Tus Notas & Citas Favoritas:</span>
+                        <p class="italic text-[9px] opacity-80 border-l-2 border-bookish-500 pl-2">"Del mismo modo que la sangre nos une, la lealtad nos mantiene juntos..."</p>
+                        <button class="w-full py-1 ${accentBg} text-center rounded font-bold text-[9px]">Añadir a mi estantería Leídos</button>
+                    </div>
+                `;
+            } else if (state.mockupScreen === 'profile') {
+                featuresList.innerHTML = `
+                    <li>Perfil público de lectora tipo BookTok.</li>
+                    <li>Insignias de logros (Ej: 'Devoradora de Sagas').</li>
+                    <li>Gráfico visual de géneros leídos en el año.</li>
+                `;
+
+                body.innerHTML = `
+                    <div class="${cardBg} p-3 rounded-xl border text-center flex flex-col items-center">
+                        <div class="w-12 h-12 rounded-full bg-bookish-300 border-2 border-white shadow flex items-center justify-center text-sm font-bold text-bookish-900 mb-1">
+                            👩‍🦰
+                        </div>
+                        <h4 class="font-serif font-bold text-xs">@ValentinaReads</h4>
+                        <p class="text-[9px] opacity-70">Romantasy Addict | 34 Libros en 2026</p>
+                    </div>
+
+                    <div class="${cardBg} p-3 rounded-xl border space-y-2">
+                        <span class="text-[10px] font-bold block">Insignias Desbloqueadas:</span>
+                        <div class="grid grid-cols-3 gap-1 text-center">
+                            <div class="p-1 bg-amber-500/10 rounded text-[8px] font-bold">👑 Reina del Fantasy</div>
+                            <div class="p-1 bg-pink-500/10 rounded text-[8px] font-bold">📖 Lectora Nocturna</div>
+                            <div class="p-1 bg-purple-500/10 rounded text-[8px] font-bold">🌶️ Spice Collector</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            lucide.createIcons();
+        }
+
+
+        // --- STEP 4 LOGIC (FINANCIAL CALCULATOR & CHART) ---
+        function calculateFinancials() {
+            state.mau = parseInt(document.getElementById('mauSlider').value);
+            state.conversion = parseFloat(document.getElementById('conversionSlider').value);
+            state.price = parseFloat(document.getElementById('priceSlider').value);
+            state.monthlyCost = parseInt(document.getElementById('costSlider').value);
+
+            // Update Labels
+            document.getElementById('mauValue').innerText = state.mau.toLocaleString();
+            document.getElementById('conversionValue').innerText = `${state.conversion.toFixed(1)}%`;
+            document.getElementById('priceValue').innerText = `$${state.price.toFixed(2)}`;
+            document.getElementById('costValue').innerText = `$${state.monthlyCost} USD`;
+
+            // Math
+            const payingUsers = Math.round(state.mau * (state.conversion / 100));
+            const mrr = payingUsers * state.price;
+            const netMonthly = mrr - state.monthlyCost;
+            const year1Profit = netMonthly * 12;
+
+            // Update DOM text
+            document.getElementById('summaryPayingUsers').innerText = payingUsers;
+            document.getElementById('summaryPrice').innerText = `$${state.price.toFixed(2)}/mes`;
+            document.getElementById('mrrDisplay').innerText = `$${mrr.toFixed(2)}`;
+            document.getElementById('netMonthlyDisplay').innerText = `$${netMonthly.toFixed(2)}`;
+            document.getElementById('year1Display').innerText = `$${year1Profit.toFixed(2)}`;
+
+            updateChart(mrr, state.monthlyCost);
+        }
+
+        let finChart;
+        function initChart() {
+            const ctx = document.getElementById('financialChart').getContext('2d');
+            finChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mes 1', 'Mes 2', 'Mes 3', 'Mes 4', 'Mes 5', 'Mes 6'],
+                    datasets: [
+                        {
+                            label: 'Ingresos Brutos ($)',
+                            data: [100, 200, 400, 700, 1000, 1500],
+                            borderColor: '#b2815a',
+                            backgroundColor: 'rgba(178, 129, 90, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Costo Operaciones ($)',
+                            data: [35, 35, 35, 35, 35, 35],
+                            borderColor: '#94a3b8',
+                            borderDash: [5, 5],
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 10 } } }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+            window.finChart = finChart;
+        }
+
+        function updateChart(mrr, cost) {
+            if (!window.finChart) return;
+            const months = ['Mes 1', 'Mes 2', 'Mes 3', 'Mes 4', 'Mes 5', 'Mes 6'];
+            const growthFactor = [0.2, 0.4, 0.6, 0.8, 0.9, 1.0];
+            const revenueData = growthFactor.map(f => (mrr * f).toFixed(2));
+            const costData = Array(6).fill(cost);
+
+            window.finChart.data.datasets[0].data = revenueData;
+            window.finChart.data.datasets[1].data = costData;
+            window.finChart.update();
+        }
+
+        // --- STEP 5 LOGIC (ROADMAP CHECKLIST TOGGLE) ---
+        function togglePhase(phaseId) {
+            const el = document.getElementById(phaseId);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        // --- EXPORT FUNCTION ---
+        function exportProjectSummary() {
+            const payingUsers = Math.round(state.mau * (state.conversion / 100));
+            const mrr = (payingUsers * state.price).toFixed(2);
+            
+            const summaryText = `
+=====================================================
+       LECTORAPP STUDIO - PLAN DE PROYECTO
+=====================================================
+Nombre de la App: ${state.appName}
+Slogan: ${state.appTagline}
+Tipo de Modelo: ${state.appType.toUpperCase()}
+Estética Elegida: ${state.theme.toUpperCase()}
+
+-----------------------------------------------------
+PROYECCIÓN FINANCIERA (AÑO 1)
+-----------------------------------------------------
+Usuarios Mensuales Objetivo (MAU): ${state.mau}
+Tasa de Conversión Estimada: ${state.conversion}%
+Suscriptores Pago Proyectados: ${payingUsers}
+Precio por Usuario: $${state.price}/mes
+Ingreso Mensual Proyectado (MRR): $${mrr} USD
+Costo Fijo Estimado: $${state.monthlyCost} USD/mes
+
+-----------------------------------------------------
+HOJA DE RUTA DE LANZAMIENTO
+-----------------------------------------------------
+Semana 1: Crear perfil BookTok + Lista de Espera.
+Semana 2: Desarrollo del PMV en plataforma No-Code.
+Semana 3: Beta privada con 20 lectoras beta.
+Semana 4: Lanzamiento Público con oferta de fundador.
+
+Generado el: ${new Date().toLocaleDateString('es-ES')}
+            `;
+
+            const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${state.appName.replace(/\s+/g, '_')}_Plan_LectorApp.txt`;
+            link.click();
+        }
+    </script>
+</body>
+</html>
